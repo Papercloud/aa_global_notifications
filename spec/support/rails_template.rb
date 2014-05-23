@@ -1,8 +1,8 @@
-rake "db:drop:all"
-rake "db:create:all"
+# rake "db:drop:all"
+# rake "db:create:all"
 
 # generate :model, 'user email:string'
-# generate "notify_user:install"
+generate "aa_global_notifications:install"
 
 # Finalise
 rake "db:migrate"

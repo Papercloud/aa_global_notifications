@@ -2,11 +2,15 @@ PATH
   remote: ../
   specs:
     aa_global_notifications (0.0.1)
+      aasm
       rails (~> 4)
+      sidekiq
+      urbanairship
 
 GEM
   remote: https://rubygems.org/
   specs:
+    aasm (3.1.1)
     actionmailer (4.0.2)
       actionpack (= 4.0.2)
       mail (~> 2.5.4)
@@ -126,6 +130,8 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.39)
+    urbanairship (2.3.3)
+      json
     xpath (2.0.0)
       nokogiri (~> 1.3)
 

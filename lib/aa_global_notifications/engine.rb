@@ -1,3 +1,6 @@
+require 'aasm'
+require 'urbanairship'
+
 module AaGlobalNotifications
   class Engine < ::Rails::Engine
   	config.generators do |g|
