@@ -13,8 +13,7 @@ module AaGlobalNotifications
 
 		self.table_name = "agn_push_notifications"
 
-		after_create :send_notification	
-
+		before_create :send_notification	
 
 		aasm column: :state do
 		  state :pending, :initial => true

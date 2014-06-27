@@ -1,0 +1,1 @@
+rails g aa_global_notifications:install
