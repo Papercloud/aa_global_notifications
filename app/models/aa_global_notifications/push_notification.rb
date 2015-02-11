@@ -13,7 +13,7 @@ module AaGlobalNotifications
 
 		self.table_name = "agn_push_notifications"
 
-		before_create :send_notification	
+		after_commit :send_notification, on: :create
 
 		aasm column: :state do
 		  state :pending, :initial => true
@@ -43,30 +43,48 @@ module AaGlobalNotifications
 			self.class.delay.send_notification(self.id)
 		end
 
+		def pubnub
+		  pubnub ||= Pubnub.new(
+		            :origin => ENV['PN_ORIGIN'],
+		            :publish_key   => ENV['PN_PUBLISH_KEY'],
+		            :subscribe_key => ENV['PN_SUBSCRIBE_KEY'],
+		            :secret_key => ENV['PN_SECRET_KEY'],
+		            :logger => Logger.new(STDERR)
+		          )
+		end
+
 		def self.send_notification(id)
 			push_notification = PushNotification.find(id)
-			response = push_notification.deliver
+			response = push_notification.deliver.first
 
-			if response.success?
-				push_notification.mark_as_sent
-				puts "Push notification sent successfully"
-				return true
+			if response.error.blank?
+				push_notification.mark_as_sent!
 			else
-				push_notification.mark_as_failed
-				puts "Push notification failed"
-				push_notification.errors[:base] << "Couldn't contact Urban Airship to send push notification"
-				return false
+				push_notification.mark_as_failed!
 			end
 		end
 
 		def deliver
-			notification = {
-				:aps => {
-				:alert => self.message,
-				:badge => 1
+			pn_apns = {
+				aps: {
+				  alert: self.message,
 				}
 			}
-			Urbanairship.broadcast_push(notification)
+
+			pn_gcm = {
+			  data: {
+			    message: self.message,
+			  }
+			}
+
+			return pubnub.publish(
+			  channel: User.all.map(&:id),
+			  http_sync: true,
+			  message: {
+			    pn_apns: pn_apns,
+			    pn_gcm: pn_gcm
+			  }
+			)
 		end
 	end
 end
