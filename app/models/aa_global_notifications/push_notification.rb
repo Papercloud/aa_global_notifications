@@ -77,14 +77,17 @@ module AaGlobalNotifications
 			  }
 			}
 
-			return pubnub.publish(
-			  channel: User.all.map(&:id),
+			users = User.all.collect(&:uuid)
+			response = pubnub.publish(
+			  channel: users,
 			  http_sync: true,
 			  message: {
 			    pn_apns: pn_apns,
 			    pn_gcm: pn_gcm
 			  }
 			)
+			
+			return response
 		end
 	end
 end
