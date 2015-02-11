@@ -67,13 +67,13 @@ module AaGlobalNotifications
 		def deliver
 			pn_apns = {
 				aps: {
-				  alert: self.message,
+				  alert: self.message
 				}
 			}
 
 			pn_gcm = {
 			  data: {
-			    message: self.message,
+			    message: self.message
 			  }
 			}
 
