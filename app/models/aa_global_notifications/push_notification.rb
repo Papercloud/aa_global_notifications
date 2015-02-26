@@ -43,7 +43,7 @@ module AaGlobalNotifications
 			self.class.delay.send_notification(self.id)
 		end
 
-		def pubnub
+		def self.pubnub
 		  pubnub ||= Pubnub.new(
 		            :origin => ENV['PN_ORIGIN'],
 		            :publish_key   => ENV['PN_PUBLISH_KEY'],
@@ -55,31 +55,32 @@ module AaGlobalNotifications
 
 		def self.send_notification(id)
 			push_notification = PushNotification.find(id)
-			response = push_notification.deliver.first
 
-			if response.error.blank?
-				push_notification.mark_as_sent!
-			else
-				push_notification.mark_as_failed!
+			User.all.find_in_batches do |group|
+			  group.each do |user|
+			  	PushNotification.delay.deliver(id, user.uuid)
+			  end
 			end
+
+			push_notification.mark_as_sent!
 		end
 
-		def deliver
+		def self.deliver(id, channel_id)
+			push_notification = PushNotification.find(id)
 			pn_apns = {
 				aps: {
-				  alert: self.message
+				  alert: push_notification.message
 				}
 			}
 
 			pn_gcm = {
 			  data: {
-			    message: self.message
+			    message: push_notification.message
 			  }
 			}
 
-			users = User.all.collect(&:uuid)
 			response = pubnub.publish(
-			  channel: users,
+			  channel: channel_id,
 			  http_sync: true,
 			  message: {
 			    pn_apns: pn_apns,
