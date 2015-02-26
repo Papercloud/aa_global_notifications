@@ -55,6 +55,7 @@ module AaGlobalNotifications
 
 		def self.send_notification(id)
 			push_notification = PushNotification.find(id)
+			push_notification.mark_as_sent!
 
 			User.all.find_in_batches do |group|
 			  group.each do |user|
@@ -62,7 +63,6 @@ module AaGlobalNotifications
 			  end
 			end
 
-			push_notification.mark_as_sent!
 		end
 
 		def self.deliver(id, channel_id)
