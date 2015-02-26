@@ -69,13 +69,16 @@ module AaGlobalNotifications
 			push_notification = PushNotification.find(id)
 			pn_apns = {
 				aps: {
-				  alert: push_notification.message
+				  alert: push_notification.message,
+				  type: "GlobalNotification"
+
 				}
 			}
 
 			pn_gcm = {
 			  data: {
-			    message: push_notification.message
+			    message: push_notification.message,
+			    type: "GlobalNotification"
 			  }
 			}
 
